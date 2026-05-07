@@ -3,186 +3,123 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Avalanche Canada — Fatal Incidents 2025/2026</title>
+<title>Avalanche Canada — Fatal Incidents 2025 / 2026</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #0b0e14;
-    --surface: #111520;
-    --surface2: #161c2c;
-    --border: #1f2a40;
-    --accent: #e84141;
-    --accent2: #f97316;
-    --accent3: #3b82f6;
-    --text: #e2e8f0;
-    --muted: #64748b;
-    --dim: #94a3b8;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    padding: 32px 28px;
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-  .header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    margin-bottom: 32px;
-    gap: 20px;
-  }
-  .header-left h1 {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 52px;
-    letter-spacing: 0.04em;
-    line-height: 1;
-    color: #fff;
-  }
-  .header-left h1 span { color: var(--accent); }
-  .header-left p {
-    font-size: 13px;
-    color: var(--muted);
-    margin-top: 6px;
-    font-weight: 400;
-  }
-  .season-badge {
-    background: var(--accent);
-    color: #fff;
-    font-family: 'DM Mono', monospace;
-    font-size: 12px;
-    padding: 6px 14px;
-    border-radius: 4px;
-    font-weight: 500;
-    white-space: nowrap;
-    margin-top: 6px;
-  }
-  .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
-  .kpi { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; position: relative; overflow: hidden; }
-  .kpi::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
-  .kpi.red::before { background: var(--accent); }
-  .kpi.orange::before { background: var(--accent2); }
-  .kpi.blue::before { background: var(--accent3); }
-  .kpi.green::before { background: #10b981; }
-  .kpi .label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 8px; font-weight: 500; }
-  .kpi .val { font-family: 'Bebas Neue', sans-serif; font-size: 48px; line-height: 1; color: #fff; }
-  .kpi.red .val { color: var(--accent); }
-  .kpi.orange .val { color: var(--accent2); }
-  .kpi.blue .val { color: var(--accent3); }
-  .kpi.green .val { color: #10b981; }
-  .kpi .sub { font-size: 11px; color: var(--muted); margin-top: 4px; }
-  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
-  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 14px; }
-  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px; }
-  .card.full { grid-column: 1 / -1; }
-  .card h3 { font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); margin-bottom: 14px; font-weight: 600; }
-  .chart-wrap { position: relative; height: 200px; }
-  table { width: 100%; border-collapse: collapse; font-size: 12px; }
-  thead th { text-align: left; padding: 8px 10px; color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; border-bottom: 1px solid var(--border); font-weight: 500; }
-  tbody td { padding: 9px 10px; border-bottom: 1px solid #0f1520; color: var(--dim); vertical-align: middle; }
-  tbody tr:last-child td { border-bottom: none; }
-  tbody tr:hover td { background: var(--surface2); }
-  .pill { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 10px; font-weight: 600; font-family: 'DM Mono', monospace; }
-  .pill-ski { background: rgba(59,130,246,0.15); color: #93c5fd; border: 1px solid rgba(59,130,246,0.3); }
-  .pill-moto { background: rgba(167,139,250,0.15); color: #c4b5fd; border: 1px solid rgba(167,139,250,0.3); }
-  .pill-mech { background: rgba(16,185,129,0.15); color: #6ee7b7; border: 1px solid rgba(16,185,129,0.3); }
-  .fatal-num { color: var(--accent); font-weight: 600; font-family: 'DM Mono', monospace; }
-  .date-cell { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); }
-  .loc-cell { font-weight: 500; color: var(--text); }
-  .patterns { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 14px; }
-  .pattern-item { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; display: flex; gap: 10px; align-items: flex-start; }
-  .pattern-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
-  .pattern-text { font-size: 12px; color: var(--dim); line-height: 1.5; }
-  .pattern-text strong { color: var(--text); font-weight: 600; }
-  .section-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--muted); font-weight: 600; margin-bottom: 10px; margin-top: 4px; }
+:root{--bg:#0b0e14;--surface:#111520;--surface2:#161c2c;--border:#1f2a40;--accent:#e84141;--accent2:#f97316;--accent3:#3b82f6;--text:#e2e8f0;--muted:#64748b;--dim:#94a3b8;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:32px 28px;max-width:1200px;margin:0 auto;}
+.header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:32px;gap:20px;}
+.header-left h1{font-family:'Bebas Neue',sans-serif;font-size:52px;letter-spacing:0.04em;line-height:1;color:#fff;}
+.header-left h1 span{color:var(--accent);}
+.header-left p{font-size:13px;color:var(--muted);margin-top:6px;font-weight:400;}
+.season-badge{background:var(--accent);color:#fff;font-family:'DM Mono',monospace;font-size:12px;padding:6px 14px;border-radius:4px;font-weight:500;white-space:nowrap;margin-top:6px;}
+.updated{font-size:11px;color:var(--muted);margin-top:4px;font-family:'DM Mono',monospace;}
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;position:relative;overflow:hidden;}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+.kpi.red::before{background:var(--accent);}.kpi.orange::before{background:var(--accent2);}.kpi.blue::before{background:var(--accent3);}
+.kpi .label{font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:8px;font-weight:500;}
+.kpi .val{font-family:'Bebas Neue',sans-serif;font-size:48px;line-height:1;color:#fff;}
+.kpi.red .val{color:var(--accent);}.kpi.orange .val{color:var(--accent2);}.kpi.blue .val{color:var(--accent3);}
+.kpi .sub{font-size:11px;color:var(--muted);margin-top:4px;}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px;}
+.card.full{grid-column:1/-1;}
+.card h3{font-size:10px;text-transform:uppercase;letter-spacing:0.12em;color:var(--muted);margin-bottom:14px;font-weight:600;}
+.chart-wrap{position:relative;height:200px;}
+table{width:100%;border-collapse:collapse;font-size:12px;}
+thead th{text-align:left;padding:8px 10px;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:0.08em;border-bottom:1px solid var(--border);font-weight:500;}
+tbody td{padding:9px 10px;border-bottom:1px solid #0f1520;color:var(--dim);vertical-align:middle;}
+tbody tr:last-child td{border-bottom:none;}tbody tr:hover td{background:var(--surface2);}
+.pill{display:inline-block;padding:2px 8px;border-radius:999px;font-size:10px;font-weight:600;font-family:'DM Mono',monospace;}
+.pill-ski{background:rgba(59,130,246,0.15);color:#93c5fd;border:1px solid rgba(59,130,246,0.3);}
+.pill-moto{background:rgba(167,139,250,0.15);color:#c4b5fd;border:1px solid rgba(167,139,250,0.3);}
+.pill-mech{background:rgba(16,185,129,0.15);color:#6ee7b7;border:1px solid rgba(16,185,129,0.3);}
+.fatal-num{color:var(--accent);font-weight:600;font-family:'DM Mono',monospace;}
+.date-cell{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);}
+.loc-cell{font-weight:500;color:var(--text);}
+.patterns{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px;}
+.pattern-item{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 14px;display:flex;gap:10px;align-items:flex-start;}
+.pattern-icon{font-size:16px;flex-shrink:0;margin-top:1px;}
+.pattern-text{font-size:12px;color:var(--dim);line-height:1.5;}
+.pattern-text strong{color:var(--text);font-weight:600;}
+.section-label{font-size:10px;text-transform:uppercase;letter-spacing:0.15em;color:var(--muted);font-weight:600;margin-bottom:10px;margin-top:4px;}
 </style>
 </head>
 <body>
-
 <div class="header">
   <div class="header-left">
     <h1>AVALANCHE <span>FATALS</span></h1>
     <p>Avalanche Canada · Fatal Incident Database · All recorded fatal incidents</p>
+    <div class="updated">Last updated: 2026-05-07 08:44 UTC · Source: incidents.avalanche.ca</div>
   </div>
   <div class="season-badge">2025 / 2026 SEASON</div>
 </div>
-
 <div class="kpi-row">
   <div class="kpi red"><div class="label">Fatal Incidents</div><div class="val">11</div><div class="sub">↑ 120% vs 5 last season</div></div>
-  <div class="kpi red"><div class="label">Total Fatalities</div><div class="val">16</div><div class="sub">Avg 1.5 per incident</div></div>
-  <div class="kpi orange"><div class="label">Avg Group Size</div><div class="val">3.0</div><div class="sub">Reported in 9 of 11 incidents</div></div>
-  <div class="kpi blue"><div class="label">Avg Buried</div><div class="val">0.9</div><div class="sub">Fully buried per incident</div></div>
+  <div class="kpi red"><div class="label">Total Fatalities</div><div class="val">13</div><div class="sub">Avg 1.2 per incident</div></div>
+  <div class="kpi orange"><div class="label">Avg Group Size</div><div class="val">3.1</div><div class="sub">Where reported</div></div>
+  <div class="kpi blue"><div class="label">Avg Fully Buried</div><div class="val">0.8</div><div class="sub">Per incident</div></div>
 </div>
-
 <div class="grid-3">
   <div class="card"><h3>Incidents by Activity</h3><div class="chart-wrap"><canvas id="activityChart"></canvas></div></div>
   <div class="card"><h3>Incidents Over Time</h3><div class="chart-wrap"><canvas id="timelineChart"></canvas></div></div>
   <div class="card"><h3>Province</h3><div class="chart-wrap"><canvas id="provinceChart"></canvas></div></div>
 </div>
-
 <div class="grid-3">
   <div class="card"><h3>Danger Rating at Incident</h3><div class="chart-wrap"><canvas id="dangerChart"></canvas></div></div>
   <div class="card"><h3>Group Size vs Fatalities</h3><div class="chart-wrap"><canvas id="scatterChart"></canvas></div></div>
   <div class="card"><h3>Start Zone Aspect</h3><div class="chart-wrap"><canvas id="aspectChart"></canvas></div></div>
 </div>
-
 <div class="grid-2">
   <div class="card"><h3>Avalanche Size Distribution</h3><div class="chart-wrap"><canvas id="avSizeChart"></canvas></div></div>
   <div class="card"><h3>Elevation Band</h3><div class="chart-wrap"><canvas id="elevChart"></canvas></div></div>
 </div>
-
 <div class="card full" style="margin-bottom:14px;">
   <h3>All Incidents</h3>
-  <table>
-    <thead><tr><th>Date</th><th>Location</th><th>Prov</th><th>Activity</th><th>Group</th><th>Involved</th><th>Fatalities</th><th>Fully Buried</th><th>Danger</th><th>Av Size</th><th>Aspect</th><th>Elevation</th></tr></thead>
-    <tbody id="tbl"></tbody>
-  </table>
+  <table><thead><tr><th>Date</th><th>Location</th><th>Prov</th><th>Activity</th><th>Group</th><th>Involved</th><th>Fatalities</th><th>Fully Buried</th><th>Danger</th><th>Av Size</th><th>Aspect</th><th>Elevation</th></tr></thead><tbody id="tbl"></tbody></table>
 </div>
-
-<div class="section-label">Key Patterns & Findings</div>
+<div class="section-label">Key Patterns &amp; Findings</div>
 <div class="patterns">
-  <div class="pattern-item"><div class="pattern-icon">📍</div><div class="pattern-text"><strong>BC dominates at 91%.</strong> 10 of 11 incidents occurred in British Columbia. The sole outlier was Otish Mountains, QC — an unusual location for a fatal avalanche incident.</div></div>
-  <div class="pattern-item"><div class="pattern-icon">🏔️</div><div class="pattern-text"><strong>Every single incident was a slab avalanche.</strong> 100% slab-type. Human-triggered in most cases (skier, snowmobiler, or remote trigger). No loose snow fatals this season.</div></div>
-  <div class="pattern-item"><div class="pattern-icon">🧭</div><div class="pattern-text"><strong>NE aspect is the danger zone.</strong> 5 of 9 incidents with aspect data were on northeast-facing slopes — typically wind-loaded and shadowed, creating persistent weak layer conditions.</div></div>
-  <div class="pattern-item"><div class="pattern-icon">📅</div><div class="pattern-text"><strong>February–March peak.</strong> 8 of 11 incidents occurred across just 6 weeks in Feb–Mar 2026. The season opened with one incident in late December, then escalated sharply.</div></div>
-  <div class="pattern-item"><div class="pattern-icon">⚠️</div><div class="pattern-text"><strong>Considerable danger accounts for most incidents.</strong> 4 incidents at Considerable, 2 at High. Considerably-rated days are high-traffic days — people still go out, and it's clearly still deadly.</div></div>
-  <div class="pattern-item"><div class="pattern-icon">👥</div><div class="pattern-text"><strong>Larger groups don't guarantee survival.</strong> The Knauss Mountain incident had a group of 4 with 3 fatalities — the highest death toll of the season. Small groups (2–3) were most common, with 1 fatality each.</div></div>
-  <div class="pattern-item"><div class="pattern-icon">🏂</div><div class="pattern-text"><strong>Snowmobiling & backcountry skiing tied at top.</strong> 4 incidents each. Mechanized skiing (heli/cat) contributed 2, including the season's worst single incident (Knauss Mountain, 3 fatalities).</div></div>
-  <div class="pattern-item"><div class="pattern-icon">📈</div><div class="pattern-text"><strong>Season is significantly worse than 2024/25.</strong> 11 incidents vs 5 the prior year — a 120% increase. 16 fatalities this season vs approximately 7 last season.</div></div>
+  <div class="pattern-item"><div class="pattern-icon">📍</div><div class="pattern-text"><strong>BC dominates at 82%.</strong> 9 of 11 incidents in British Columbia.</div></div>
+  <div class="pattern-item"><div class="pattern-icon">🏔️</div><div class="pattern-text"><strong>100% slab avalanches.</strong> Every incident was slab-type — no loose snow fatalities this season.</div></div>
+  <div class="pattern-item"><div class="pattern-icon">🧭</div><div class="pattern-text"><strong>NE aspect is the danger zone.</strong> 7 of 11 incidents with aspect data on northeast-facing slopes.</div></div>
+  <div class="pattern-item"><div class="pattern-icon">📅</div><div class="pattern-text"><strong>February–March peak.</strong> 9 of 11 incidents in those two months.</div></div>
+  <div class="pattern-item"><div class="pattern-icon">⚠️</div><div class="pattern-text"><strong>Considerable danger still deadly.</strong> Most incidents occurred on Considerable or High rated days.</div></div>
+  <div class="pattern-item"><div class="pattern-icon">📈</div><div class="pattern-text"><strong>Season significantly worse than prior year.</strong> 11 incidents vs 5 last season — a 120% increase.</div></div>
 </div>
-
 <script>
 const incidents = [
-  {date:"2025-12-30",loc:"Bullmoose",prov:"BC",act:"Snowmobiling",gs:3,inv:1,fat:1,bur:1,danger:"Considerable",avSize:2.5,aspect:"NE",elev:"Alpine"},
-  {date:"2026-02-17",loc:"Matheson Creek",prov:"BC",act:"Snowmobiling",gs:2,inv:1,fat:1,bur:1,danger:"High",avSize:2.5,aspect:"NE",elev:"Treeline"},
-  {date:"2026-02-19",loc:"Akolkolex River",prov:"BC",act:"Mechanized Skiing",gs:null,inv:1,fat:1,bur:1,danger:null,avSize:2,aspect:"SE",elev:"Treeline"},
-  {date:"2026-02-24",loc:"Hurley River",prov:"BC",act:"Snowmobiling",gs:3,inv:2,fat:1,bur:2,danger:"Considerable",avSize:2.5,aspect:"NE",elev:"Alpine"},
-  {date:"2026-02-24",loc:"Porteau Cove",prov:"BC",act:"Backcountry Skiing",gs:null,inv:1,fat:1,bur:0,danger:null,avSize:null,aspect:null,elev:null},
-  {date:"2026-02-28",loc:"Kootenay Pass",prov:"BC",act:"Snowmobiling",gs:3,inv:2,fat:1,bur:1,danger:"Considerable",avSize:2.5,aspect:"NE",elev:"Below Treeline"},
-  {date:"2026-03-11",loc:"Otish Mountains",prov:"QC",act:"Backcountry Skiing",gs:4,inv:2,fat:1,bur:1,danger:null,avSize:1.5,aspect:"SE",elev:null},
-  {date:"2026-03-22",loc:"Knauss Mountain",prov:"BC",act:"Mechanized Skiing",gs:4,inv:4,fat:3,bur:0,danger:null,avSize:3,aspect:"E",elev:"Treeline"},
-  {date:"2026-03-22",loc:"Haines Pass",prov:"BC",act:"Backcountry Skiing",gs:null,inv:null,fat:1,bur:null,danger:null,avSize:null,aspect:null,elev:null},
-  {date:"2026-03-30",loc:"Swiss Peak",prov:"BC",act:"Backcountry Skiing",gs:null,inv:null,fat:1,bur:null,danger:null,avSize:null,aspect:null,elev:null},
-  {date:"2026-04-14",loc:"Johanson Lake",prov:"BC",act:"Snowmobiling",gs:2,inv:2,fat:1,bur:1,danger:null,avSize:null,aspect:null,elev:null},
+  {date:"2025-12-30",loc:"Bullmoose",prov:"BC",act:"Snowmobiling",gs:3,inv:1,fat:1,bur:1,danger:"Considerable",avSize:"2.5",aspect:"NE",elev:"Alpine"},
+  {date:"2026-02-17",loc:"Matheson Creek",prov:"BC",act:"Snowmobiling",gs:2,inv:1,fat:1,bur:1,danger:"High",avSize:"2.5",aspect:"NE",elev:"Treeline"},
+  {date:"2026-02-19",loc:"Akolkolex River",prov:"BC",act:"Mechanized Skiing",gs:null,inv:1,fat:1,bur:1,danger:null,avSize:"2",aspect:"SE",elev:"Treeline"},
+  {date:"2026-02-24",loc:"Anniversary Glacier",prov:"BC",act:"Backcountry Skiing",gs:2,inv:2,fat:1,bur:1,danger:"Considerable",avSize:"3.5",aspect:"NE",elev:"Alpine"},
+  {date:"2026-02-27",loc:"Nakiska Ski Area",prov:"AB",act:"Unknown",gs:2,inv:2,fat:1,bur:1,danger:null,avSize:"2",aspect:"NE",elev:null},
+  {date:"2026-02-28",loc:"Kootenay Pass",prov:"BC",act:"Snowmobiling",gs:3,inv:2,fat:1,bur:1,danger:"Considerable",avSize:"2.5",aspect:"NE",elev:"Below Treeline"},
+  {date:"2026-03-11",loc:"Otish Mountains",prov:"QC",act:"Backcountry Skiing",gs:4,inv:2,fat:1,bur:1,danger:null,avSize:"1.5",aspect:"SE",elev:null},
+  {date:"2026-03-22",loc:"Knauss Mountain",prov:"BC",act:"Mechanized Skiing",gs:4,inv:4,fat:3,bur:null,danger:null,avSize:"3",aspect:"E",elev:"Treeline"},
+  {date:"2026-03-22",loc:"Haines Pass",prov:"BC",act:"Backcountry Skiing",gs:5,inv:2,fat:1,bur:1,danger:"Considerable",avSize:"4",aspect:"NW",elev:"Alpine"},
+  {date:"2026-03-30",loc:"Swiss Peak",prov:"BC",act:"Backcountry Skiing",gs:4,inv:1,fat:1,bur:null,danger:"Moderate",avSize:"1",aspect:"NE",elev:"Alpine"},
+  {date:"2026-04-14",loc:"Johanson Lake",prov:"BC",act:"Snowmobiling",gs:2,inv:2,fat:1,bur:1,danger:"No_Forecast",avSize:"2.5",aspect:"NE",elev:"Treeline"}
 ];
 const tbl = document.getElementById('tbl');
 incidents.forEach(i => {
-  const pillClass = i.act.includes('Backcountry') ? 'pill-ski' : i.act.includes('Snowmobil') ? 'pill-moto' : 'pill-mech';
-  tbl.innerHTML += `<tr><td class="date-cell">${i.date}</td><td class="loc-cell">${i.loc}</td><td style="font-family:'DM Mono',monospace;font-size:11px">${i.prov}</td><td><span class="pill ${pillClass}">${i.act}</span></td><td style="text-align:center">${i.gs??'—'}</td><td style="text-align:center">${i.inv??'—'}</td><td style="text-align:center"><span class="fatal-num">${i.fat}</span></td><td style="text-align:center">${i.bur??'—'}</td><td>${i.danger??'—'}</td><td style="font-family:'DM Mono',monospace;font-size:11px">${i.avSize??'—'}</td><td style="font-family:'DM Mono',monospace;font-size:11px">${i.aspect??'—'}</td><td>${i.elev??'—'}</td></tr>`;
+  const p = (i.act||'').includes('Backcountry') ? 'pill-ski' : (i.act||'').includes('Snowmobil') ? 'pill-moto' : 'pill-mech';
+  tbl.innerHTML += '<tr><td class="date-cell">'+i.date+'</td><td class="loc-cell">'+i.loc+'</td><td>'+i.prov+'</td>'+'<td><span class="pill '+p+'">'+i.act+'</span></td>'+'<td>'+(i.gs!=null?i.gs:'—')+'</td><td>'+(i.inv!=null?i.inv:'—')+'</td>'+'<td><span class="fatal-num">'+i.fat+'</span></td><td>'+(i.bur!=null?i.bur:'—')+'</td>'+'<td>'+(i.danger||'—')+'</td><td>'+(i.avSize!=null?i.avSize:'—')+'</td>'+'<td>'+(i.aspect||'—')+'</td><td>'+(i.elev||'—')+'</td></tr>';
 });
-const gridOpts = (extra={}) => ({responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#64748b',font:{size:10,family:'DM Sans'},padding:10,boxWidth:10}}},scales:{x:{ticks:{color:'#475569',font:{size:10}},grid:{color:'#0f1520'}},y:{ticks:{color:'#475569',font:{size:10}},grid:{color:'#0f1520'}}},...extra});
-new Chart(document.getElementById('activityChart'),{type:'doughnut',data:{labels:['Snowmobiling (4)','Backcountry Ski (4)','Mechanized Ski (2)','Other (1)'],datasets:[{data:[4,4,2,1],backgroundColor:['#a855f7','#3b82f6','#10b981','#64748b'],borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,cutout:'58%',plugins:{legend:{labels:{color:'#64748b',font:{size:10},boxWidth:10}}}}});
-new Chart(document.getElementById('timelineChart'),{type:'bar',data:{labels:['Dec','Jan','Feb','Mar','Apr'],datasets:[{label:'Incidents',data:[1,0,5,4,1],backgroundColor:'#e84141',borderRadius:3,borderSkipped:false},{label:'Fatalities',data:[1,0,6,7,1],backgroundColor:'rgba(249,115,22,0.6)',borderRadius:3,borderSkipped:false}]},options:gridOpts()});
-new Chart(document.getElementById('provinceChart'),{type:'bar',data:{labels:['BC','QC'],datasets:[{data:[10,1],backgroundColor:['#3b82f6','#f59e0b'],borderRadius:4}]},options:gridOpts({plugins:{legend:{display:false}}})});
-new Chart(document.getElementById('dangerChart'),{type:'bar',data:{labels:['Considerable','High','Not Reported'],datasets:[{data:[4,2,5],backgroundColor:['#f59e0b','#ef4444','#334155'],borderRadius:4}]},options:gridOpts({plugins:{legend:{display:false}}})});
+const go = (x) => Object.assign({responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#64748b',font:{size:10},padding:10,boxWidth:10}}},scales:{x:{ticks:{color:'#475569',font:{size:10}},grid:{color:'#0f1520'}},y:{ticks:{color:'#475569',font:{size:10}},grid:{color:'#0f1520'}}}}, x||{});
+const pal=['#a855f7','#3b82f6','#10b981','#64748b','#f59e0b','#ef4444','#22d3ee'];
+new Chart(document.getElementById('activityChart'),{type:'doughnut',data:{labels:["Snowmobiling", "Backcountry Skiing", "Mechanized Skiing", "Not Reported"],datasets:[{data:[4, 4, 2, 1],backgroundColor:pal,borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,cutout:'58%',plugins:{legend:{labels:{color:'#64748b',font:{size:10},boxWidth:10}}}}});
+new Chart(document.getElementById('timelineChart'),{type:'bar',data:{labels:["Dec", "Feb", "Mar", "Apr"],datasets:[{label:'Incidents',data:[1, 5, 4, 1],backgroundColor:'#e84141',borderRadius:3,borderSkipped:false},{label:'Fatalities',data:[1, 5, 6, 1],backgroundColor:'rgba(249,115,22,0.6)',borderRadius:3,borderSkipped:false}]},options:go()});
+new Chart(document.getElementById('provinceChart'),{type:'bar',data:{labels:["BC", "AB", "QC"],datasets:[{data:[9, 1, 1],backgroundColor:pal,borderRadius:4}]},options:go({plugins:{legend:{display:false}}})});
+new Chart(document.getElementById('dangerChart'),{type:'bar',data:{labels:["Considerable", "Not Reported", "High", "Moderate", "No_Forecast"],datasets:[{data:[4, 4, 1, 1, 1],backgroundColor:['#f59e0b','#ef4444','#334155','#10b981'],borderRadius:4}]},options:go({plugins:{legend:{display:false}}})});
 new Chart(document.getElementById('scatterChart'),{type:'scatter',data:{datasets:[{label:'Incident',data:incidents.filter(i=>i.gs).map(i=>({x:i.gs,y:i.fat})),backgroundColor:'#e84141cc',pointRadius:8,pointHoverRadius:11}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{title:{display:true,text:'Group Size',color:'#475569',font:{size:10}},ticks:{color:'#475569',font:{size:10}},grid:{color:'#0f1520'},min:0},y:{title:{display:true,text:'Fatalities',color:'#475569',font:{size:10}},ticks:{color:'#475569',font:{size:10}},grid:{color:'#0f1520'},min:0}}}});
-new Chart(document.getElementById('aspectChart'),{type:'bar',data:{labels:['NE','SE','E','Not Reported'],datasets:[{data:[5,2,1,3],backgroundColor:['#6366f1','#8b5cf6','#a78bfa','#334155'],borderRadius:4}]},options:gridOpts({plugins:{legend:{display:false}}})});
-new Chart(document.getElementById('avSizeChart'),{type:'bar',data:{labels:['1.5','2.0','2.5','3.0','NR'],datasets:[{data:[1,1,4,1,4],backgroundColor:['#34d399','#fbbf24','#f97316','#ef4444','#334155'],borderRadius:4}]},options:gridOpts({plugins:{legend:{display:false}}})});
-new Chart(document.getElementById('elevChart'),{type:'doughnut',data:{labels:['Treeline','Alpine','Below Treeline','Not Reported'],datasets:[{data:[4,3,1,3],backgroundColor:['#22d3ee','#818cf8','#34d399','#334155'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,cutout:'55%',plugins:{legend:{labels:{color:'#64748b',font:{size:10},boxWidth:10}}}}});
+new Chart(document.getElementById('aspectChart'),{type:'bar',data:{labels:["NE", "SE", "E", "NW"],datasets:[{data:[7, 2, 1, 1],backgroundColor:['#6366f1','#8b5cf6','#a78bfa','#334155','#22d3ee'],borderRadius:4}]},options:go({plugins:{legend:{display:false}}})});
+new Chart(document.getElementById('avSizeChart'),{type:'bar',data:{labels:["2.5", "2", "3.5", "1.5", "3", "4", "1"],datasets:[{data:[4, 2, 1, 1, 1, 1, 1],backgroundColor:['#34d399','#fbbf24','#f97316','#ef4444','#334155'],borderRadius:4}]},options:go({plugins:{legend:{display:false}}})});
+new Chart(document.getElementById('elevChart'),{type:'doughnut',data:{labels:["Alpine", "Treeline", "Not Reported", "Below Treeline"],datasets:[{data:[4, 4, 2, 1],backgroundColor:['#22d3ee','#818cf8','#34d399','#334155'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,cutout:'55%',plugins:{legend:{labels:{color:'#64748b',font:{size:10},boxWidth:10}}}}});
 </script>
 </body>
 </html>
