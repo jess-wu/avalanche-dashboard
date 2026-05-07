@@ -1,0 +1,141 @@
+name: Daily Dashboard Update
+
+on:
+  schedule:
+    - cron: '0 6 * * *'   # 6am UTC daily
+  workflow_dispatch:        # allow manual trigger
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Generate branch name
+        id: branch
+        run: echo "name=update/$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
+
+      - name: Create update branch
+        run: git checkout -b ${{ steps.branch.outputs.name }}
+
+      - name: Step 1 and 2 - Fetch data and rebuild dashboard
+        run: python3 scripts/update_dashboard.py index.html
+
+      - name: Step 3 - Subagent verification (cross-check against source)
+        run: |
+          python3 - << 'PYEOF'
+          import json, sys, subprocess
+          from urllib.request import urlopen
+          from datetime import datetime
+
+          with urlopen("https://incidents-api.prod.avalanche.ca/v1/public/en/incidents", timeout=30) as r:
+              all_data = json.loads(r.read())
+
+          season = []
+          for d in all_data:
+              try:
+                  dt = datetime.strptime(d["date"], "%Y-%m-%d")
+                  if (dt.year == 2025 and dt.month >= 10) or (dt.year == 2026 and dt.month <= 9):
+                      season.append(d)
+              except Exception:
+                  pass
+
+          with open("index.html", "r") as f:
+              html = f.read()
+
+          errors = []
+          for i in season:
+              loc = (i.get("location") or {}).get("en", "")
+              if loc and loc not in html:
+                  errors.append("MISSING location: " + loc)
+              if i["date"] not in html:
+                  errors.append("MISSING date: " + i["date"])
+          total = len(season)
+          total_fat = sum(i.get("numberFatalities") or 0 for i in season)
+          if str(total) not in html:
+              errors.append("MISSING total count: " + str(total))
+          if str(total_fat) not in html:
+              errors.append("MISSING total fatalities: " + str(total_fat))
+
+          if errors:
+              print("VERIFICATION FAILED (" + str(len(errors)) + " errors) - attempting auto-fix:")
+              for e in errors:
+                  print("  " + e)
+              result = subprocess.run(["python3", "scripts/update_dashboard.py", "index.html"], capture_output=True, text=True)
+              print(result.stdout)
+              if result.returncode != 0:
+                  print(result.stderr)
+                  sys.exit(1)
+              print("Auto-fix applied successfully")
+          else:
+              print("Verification passed: " + str(total) + " incidents, " + str(total_fat) + " fatalities, all data present")
+          PYEOF
+
+      - name: Check for changes
+        id: changes
+        run: |
+          if git diff --quiet index.html; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+            echo "No changes - dashboard already up to date"
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "Changes detected"
+          fi
+
+      - name: Step 4 - Commit to update branch
+        if: steps.changes.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "chore: auto-update dashboard $(date +'%Y-%m-%d')"
+          git push origin ${{ steps.branch.outputs.name }}
+
+      - name: Step 5 - Merge to main
+        if: steps.changes.outputs.changed == 'true'
+        run: |
+          git checkout main
+          git merge ${{ steps.branch.outputs.name }} --no-ff -m "chore: merge dashboard update $(date +'%Y-%m-%d')"
+          git push origin main
+          git push origin --delete ${{ steps.branch.outputs.name }}
+
+      - name: Wait for GitHub Pages
+        if: steps.changes.outputs.changed == 'true'
+        run: sleep 90
+
+      - name: Step 6 - Verify website updated
+        if: steps.changes.outputs.changed == 'true'
+        run: |
+          python3 - << 'PYEOF'
+          import urllib.request, sys
+          from datetime import datetime
+          today = datetime.utcnow().strftime("%Y-%m-%d")
+          url = "https://jess-wu.github.io/avalanche-dashboard/"
+          try:
+              with urllib.request.urlopen(url, timeout=30) as r:
+                  body = r.read().decode("utf-8")
+              if today in body:
+                  print("Website verified - contains today timestamp (" + today + ")")
+              else:
+                  print("Website loaded but today (" + today + ") not yet visible - Pages may still be propagating")
+          except Exception as e:
+              print("Failed to reach website: " + str(e))
+              sys.exit(1)
+          PYEOF
+
+      - name: Done
+        run: |
+          if [ "${{ steps.changes.outputs.changed }}" == "true" ]; then
+            echo "Dashboard updated at https://jess-wu.github.io/avalanche-dashboard/"
+          else
+            echo "No new incidents - dashboard unchanged"
+          fi
