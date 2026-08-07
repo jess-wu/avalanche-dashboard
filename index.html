@@ -54,7 +54,7 @@ tbody tr:last-child td{border-bottom:none;}tbody tr:hover td{background:var(--su
   <div class="header-left">
     <h1>AVALANCHE <span>FATALS</span></h1>
     <p>Avalanche Canada · Fatal Incident Database · All recorded fatal incidents</p>
-    <div class="updated">Last updated: 2026-08-06 08:47 UTC · Source: incidents.avalanche.ca</div>
+    <div class="updated">Last updated: 2026-08-07 07:25 UTC · Source: incidents.avalanche.ca</div>
   </div>
   <div class="season-badge">2025 / 2026 SEASON</div>
 </div>
@@ -99,7 +99,7 @@ const incidents = [
   {date:"2026-02-24",loc:"Anniversary Glacier",prov:"BC",act:"Backcountry Skiing",gs:2,inv:2,fat:1,bur:1,danger:"Considerable",avSize:"3.5",aspect:"NE",elev:"Alpine"},
   {date:"2026-02-27",loc:"Nakiska Ski Area",prov:"AB",act:"Unknown",gs:2,inv:2,fat:1,bur:1,danger:null,avSize:"2",aspect:"NE",elev:null},
   {date:"2026-02-28",loc:"Kootenay Pass",prov:"BC",act:"Snowmobiling",gs:3,inv:2,fat:1,bur:1,danger:"Considerable",avSize:"2.5",aspect:"NE",elev:"Below Treeline"},
-  {date:"2026-03-11",loc:"Otish Mountains",prov:"QC",act:"Backcountry Skiing",gs:4,inv:2,fat:1,bur:1,danger:null,avSize:"1.5",aspect:"SE",elev:null},
+  {date:"2026-03-11",loc:"Otish Mountains",prov:"QC",act:"Backcountry Skiing",gs:4,inv:2,fat:1,bur:1,danger:"No_Forecast",avSize:"1.5",aspect:"SE",elev:null},
   {date:"2026-03-22",loc:"Knauss Mountain",prov:"BC",act:"Mechanized Skiing",gs:4,inv:4,fat:3,bur:null,danger:null,avSize:"3",aspect:"E",elev:"Treeline"},
   {date:"2026-03-22",loc:"Haines Pass",prov:"BC",act:"Backcountry Skiing",gs:5,inv:2,fat:1,bur:1,danger:"Considerable",avSize:"4",aspect:"NW",elev:"Alpine"},
   {date:"2026-03-30",loc:"Swiss Peak",prov:"BC",act:"Backcountry Skiing",gs:4,inv:1,fat:1,bur:null,danger:"Moderate",avSize:"1",aspect:"NE",elev:"Alpine"},
@@ -115,7 +115,7 @@ const pal=['#a855f7','#3b82f6','#10b981','#64748b','#f59e0b','#ef4444','#22d3ee'
 new Chart(document.getElementById('activityChart'),{type:'doughnut',data:{labels:["Snowmobiling", "Backcountry Skiing", "Mechanized Skiing", "Not Reported"],datasets:[{data:[4, 4, 2, 1],backgroundColor:pal,borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,cutout:'58%',plugins:{legend:{labels:{color:'#64748b',font:{size:10},boxWidth:10}}}}});
 new Chart(document.getElementById('timelineChart'),{type:'bar',data:{labels:["Dec", "Feb", "Mar", "Apr"],datasets:[{label:'Incidents',data:[1, 5, 4, 1],backgroundColor:'#e84141',borderRadius:3,borderSkipped:false},{label:'Fatalities',data:[1, 5, 6, 1],backgroundColor:'rgba(249,115,22,0.6)',borderRadius:3,borderSkipped:false}]},options:go()});
 new Chart(document.getElementById('provinceChart'),{type:'bar',data:{labels:["BC", "AB", "QC"],datasets:[{data:[9, 1, 1],backgroundColor:pal,borderRadius:4}]},options:go({plugins:{legend:{display:false}}})});
-new Chart(document.getElementById('dangerChart'),{type:'bar',data:{labels:["Considerable", "Not Reported", "High", "Moderate", "No_Forecast"],datasets:[{data:[4, 4, 1, 1, 1],backgroundColor:['#f59e0b','#ef4444','#334155','#10b981'],borderRadius:4}]},options:go({plugins:{legend:{display:false}}})});
+new Chart(document.getElementById('dangerChart'),{type:'bar',data:{labels:["Considerable", "Not Reported", "No_Forecast", "High", "Moderate"],datasets:[{data:[4, 3, 2, 1, 1],backgroundColor:['#f59e0b','#ef4444','#334155','#10b981'],borderRadius:4}]},options:go({plugins:{legend:{display:false}}})});
 new Chart(document.getElementById('scatterChart'),{type:'scatter',data:{datasets:[{label:'Incident',data:incidents.filter(i=>i.gs).map(i=>({x:i.gs,y:i.fat})),backgroundColor:'#e84141cc',pointRadius:8,pointHoverRadius:11}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{title:{display:true,text:'Group Size',color:'#475569',font:{size:10}},ticks:{color:'#475569',font:{size:10}},grid:{color:'#0f1520'},min:0},y:{title:{display:true,text:'Fatalities',color:'#475569',font:{size:10}},ticks:{color:'#475569',font:{size:10}},grid:{color:'#0f1520'},min:0}}}});
 new Chart(document.getElementById('aspectChart'),{type:'bar',data:{labels:["NE", "SE", "E", "NW"],datasets:[{data:[7, 2, 1, 1],backgroundColor:['#6366f1','#8b5cf6','#a78bfa','#334155','#22d3ee'],borderRadius:4}]},options:go({plugins:{legend:{display:false}}})});
 new Chart(document.getElementById('avSizeChart'),{type:'bar',data:{labels:["2.5", "2", "3.5", "1.5", "3", "4", "1"],datasets:[{data:[4, 2, 1, 1, 1, 1, 1],backgroundColor:['#34d399','#fbbf24','#f97316','#ef4444','#334155'],borderRadius:4}]},options:go({plugins:{legend:{display:false}}})});
